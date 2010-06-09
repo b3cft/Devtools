@@ -1,0 +1,13 @@
+#!/bin/bash
+
+DIR=`dirname $0`
+STATUS=0
+
+for file in $DIR/pre-commit_*; do 
+    exec $file 
+    if [ $? -ne 0 ]; then
+      STATUS=1;
+    fi
+done
+
+exit $STATUS

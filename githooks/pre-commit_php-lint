@@ -1,0 +1,29 @@
+#!/bin/bash
+
+GIT='/usr/local/bin/git'
+PHP='/usr/bin/php'
+GREP='/usr/bin/egrep'
+FILES='.*(\.inc|\.inc\.ros\.php|\.php\.ros)$'
+
+PREVCOMMIT=`$GIT rev-parse --verify HEAD 2> /dev/null`
+if [ $? -ne 0 ]; then
+  PREVCOMMIT='HEAD';
+fi
+
+CHANGED=`$GIT diff-index --cached --name-only $PREVCOMMIT | $GREP "$FILES"`
+
+STATUS=0
+for FILE in $CHANGED; do
+  MSG=`$PHP -dshort_open_tag=0 -n -l $FILE`
+  if [ $? -ne 0 ]; then
+    STATUS=1
+    ERRORS+=$MSG
+  fi 
+done
+if [ $STATUS -ne 0 ]; then
+  echo -e "\n*****************************" 1>&2 
+  echo "PHP errors detected in files:" 1>&2
+  echo -e "$ERRORS"                    1>&2
+  echo -e "\n*****************************" 1>&2 
+fi
+exit $STATUS
