@@ -3,14 +3,21 @@
 GIT='/usr/local/bin/git'
 PHP='/usr/bin/php'
 GREP='/usr/bin/egrep'
-FILES='.*(\.inc|\.inc\.ros\.php|\.php\.ros)$'
+PHP_FILES='.*(\.inc|\.php)$'
 
-PREVCOMMIT=`$GIT rev-parse --verify HEAD 2> /dev/null`
-if [ $? -ne 0 ]; then
-  PREVCOMMIT='HEAD';
+DIR=`dirname $0`
+if [ -e $DIR/config ]; then
+    source $DIR/config
 fi
 
-CHANGED=`$GIT diff-index --cached --name-only $PREVCOMMIT | $GREP "$FILES"`
+$GIT rev-parse --verify HEAD 2> /dev/null
+if [ $? -eq 0 ]; then
+  PREVCOMMIT='HEAD';
+else
+  PREVCOMMIT='4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+fi
+
+CHANGED=`$GIT diff-index --diff-filter=ACMR --cached --name-only $PREVCOMMIT | $GREP "$PHP_FILES"`
 
 STATUS=0
 for FILE in $CHANGED; do
